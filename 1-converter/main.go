@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	const USDToERU float64 = 0.932
+	const USDToEUR float64 = 0.932
 	const USDToRUB float64 = 70.323
-	const ERUToRUB float64 = USDToRUB / USDToERU
+	const EURToRUB float64 = USDToRUB / USDToEUR
 }
