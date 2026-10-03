@@ -8,7 +8,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func readLine(scanner *bufio.Scanner) (string, error) {
@@ -44,7 +43,7 @@ func parseNumberSeries(line string) ([]int, error) {
 
 func performingOperation(numberSeries []int, operation string) (float64, error) {
 	if !(len(numberSeries) > 0) {
-		return -1, fmt.Errorf("Empty number series")
+		return -1, fmt.Errorf("empty number series")
 	}
 
 	switch operation {
@@ -69,7 +68,7 @@ func performingOperation(numberSeries []int, operation string) (float64, error) 
 		}
 		return float64(copyNumberSeries[n/2-1]+copyNumberSeries[n/2]) / 2.0, nil
 	default:
-		return -1, fmt.Errorf("Unknow command")
+		return -1, fmt.Errorf("unknow command")
 	}
 }
 
@@ -80,7 +79,6 @@ func main() {
 	for i := 0; i < 101; i++ {
 		if i == 100 {
 			fmt.Printf("So mach try!\n")
-			time.Sleep(2000)
 			os.Exit(1)
 		}
 
@@ -88,30 +86,43 @@ func main() {
 		if !scanner.Scan() {
 			if err := scanner.Err(); err != nil {
 				fmt.Printf("Invalid input: %v\n", err)
-				continue
+				os.Exit(1)
 			}
-			fmt.Printf("Empty input\n")
-			continue
+			fmt.Printf("End of input\n")
+			os.Exit(1)
 		}
 
 		command = strings.TrimSpace(scanner.Text())
-		break
+		if slices.Contains([]string{"AVG", "SUM", "MED"}, command) {
+			break
+		}
+		fmt.Println("Unknown command! Try again!")
 	}
 
-	fmt.Print("Input number series: ")
 	var numberSeries []int
 	for i := 0; i < 101; i++ {
+		if i == 100 {
+			fmt.Printf("So mach try!\n")
+			os.Exit(1)
+		}
+
+		fmt.Print("Input number series: ")
 		lineOfNuberSeries, err := readLine(scanner)
 		if err != nil {
 			fmt.Printf("Invalid input: %v\n", err)
+			os.Exit(1)
 		}
 
 		numberSeries, err = parseNumberSeries(lineOfNuberSeries)
 		if err != nil {
 			fmt.Printf("Invalid input: %v\n", err)
-		} else {
-			break
+			continue
 		}
+		if numberSeries == nil {
+			continue
+		}
+
+		break
 	}
 
 	result, err := performingOperation(numberSeries, command)
