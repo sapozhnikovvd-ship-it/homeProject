@@ -13,7 +13,7 @@ func mySplit(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	sep := ","
 	index := strings.Index(string(data), sep)
 
-	if index > 0 {
+	if index >= 0 {
 		return index + len(sep), data[:index], nil
 	} else if len(data) > 0 {
 		return len(data), data, nil
@@ -35,11 +35,9 @@ func inputNumberSeries() ([]int, error) {
 			if err == nil {
 				result = append(result, int(num))
 			} else {
-				fmt.Printf("Invalid input: %v\n", err)
 				return make([]int, 0), err
 			}
 		} else if err := scanner.Err(); err != nil {
-			fmt.Printf("Invalid input: %v\n", err)
 			return make([]int, 0), err
 		} else {
 			break
@@ -50,6 +48,10 @@ func inputNumberSeries() ([]int, error) {
 }
 
 func performingOperation(numberSeries []int, operation string) (int, error) {
+	if !(len(numberSeries) > 0) {
+		return -1, fmt.Errorf("Empty number series")
+	}
+
 	switch operation {
 	case "AVG":
 		sum := 0
@@ -66,8 +68,11 @@ func performingOperation(numberSeries []int, operation string) (int, error) {
 	case "MED":
 		copyNumberSeries := slices.Clone(numberSeries)
 		slices.Sort(copyNumberSeries)
-		centre := int(len(copyNumberSeries) / 2)
-		return int((copyNumberSeries[centre] + copyNumberSeries[centre+1]) / 2), nil
+		n := len(copyNumberSeries)
+		if n%2 == 1 {
+			return copyNumberSeries[n/2], nil
+		}
+		return (copyNumberSeries[n/2-1] + copyNumberSeries[n/2]) / 2, nil
 	default:
 		return -1, fmt.Errorf("Unknow command")
 	}
@@ -75,25 +80,25 @@ func performingOperation(numberSeries []int, operation string) (int, error) {
 
 func main() {
 	var command string
-	fmt.Println("Input command (AVG, SUM, MED): ")
+	fmt.Print("Input command (AVG, SUM, MED): ")
 	_, err := fmt.Scanf("%s", &command)
 	if err != nil {
-		fmt.Printf("Invalid input: %v", err)
+		fmt.Printf("Invalid input: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("Input command number series: ")
+	fmt.Print("Input number series: ")
 	numberSeries, err := inputNumberSeries()
 	if err != nil {
-		fmt.Printf("Invalid input: %v", err)
+		fmt.Printf("Invalid input: %v\n", err)
 		os.Exit(1)
 	}
 
 	result, err := performingOperation(numberSeries, command)
 	if err != nil {
-		fmt.Printf("Invalid input: %v", err)
+		fmt.Printf("Invalid input: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Result for \"%s\": %d", command, result)
+	fmt.Printf("Result for \"%s\": %d\n", command, result)
 }
