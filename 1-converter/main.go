@@ -78,9 +78,9 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 
 // Расчет эквивалента в другой валюте
 func convertCurrency(amount float64, sourceCurrency string, finalCurrency string) float64 {
-	exchangeRate := map[string]map[string]float64{"RUB": {"USD": 1.0 / 70.323, "EUR": 0.932 / 70.323},
-		"USD": {"RUB": 70.323, "EUR": 0.932},
-		"EUR": {"USD": 1.0 / 0.932, "RUB": 70.323 / 0.932}}
+	exchangeRate := map[string]map[string]float64{"RUB": {"USD": 1.0 / 70.323, "EUR": 0.932 / 70.323, "RUB": 1.0},
+		"USD": {"RUB": 70.323, "EUR": 0.932, "USD": 1.0},
+		"EUR": {"USD": 1.0 / 0.932, "RUB": 70.323 / 0.932, "EUR": 1.0}}
 
 	return amount * exchangeRate[sourceCurrency][finalCurrency]
 }
