@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-var exchangeRate = map[string]float64{"USD": 1.0, "EUR": 0.932, "RUB": 70.323}
-
 // Форматированный ввод пользователем информации для конверсии валют
-func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency string) {
+func inputConvertInfo(exchangeRate *map[string]float64) (float64, string, string, *map[string]float64) {
 	scanner := bufio.NewScanner(os.Stdin)
+	var amount float64
+	var sourceCurrency, finalCurrency string
 
 	for {
 		fmt.Print("Input amount: ")
@@ -54,7 +54,7 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 
 		sourceCurrency = strings.TrimSpace(scanner.Text())
 
-		if _, ok := exchangeRate[sourceCurrency]; !ok {
+		if _, ok := (*exchangeRate)[sourceCurrency]; !ok {
 			fmt.Printf("Invalid input: the source currency must be RUB, EUR or USD\nTry again\n")
 			continue
 		}
@@ -74,20 +74,21 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 
 		finalCurrency = strings.TrimSpace(scanner.Text())
 
-		if _, ok := exchangeRate[finalCurrency]; !ok {
+		if _, ok := (*exchangeRate)[finalCurrency]; !ok {
 			fmt.Printf("Invalid input: the final currency must be RUB, EUR or USD\nTry again\n")
 			continue
 		}
 		break
 	}
-	return
+	return amount, sourceCurrency, finalCurrency, exchangeRate
 }
 
 // Расчет эквивалента в другой валюте
-func convertCurrency(amount float64, sourceCurrency string, finalCurrency string) float64 {
-	return amount / exchangeRate[sourceCurrency] * exchangeRate[finalCurrency]
+func convertCurrency(amount float64, sourceCurrency string, finalCurrency string, exchangeRate *map[string]float64) float64 {
+	return amount / (*exchangeRate)[sourceCurrency] * (*exchangeRate)[finalCurrency]
 }
 
 func main() {
-	fmt.Printf("Result: %f\n", convertCurrency(inputConvertInfo()))
+	var exchangeRate = map[string]float64{"USD": 1.0, "EUR": 0.932, "RUB": 70.323}
+	fmt.Printf("Result: %f\n", convertCurrency(inputConvertInfo(&exchangeRate)))
 }
