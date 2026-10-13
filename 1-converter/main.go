@@ -76,35 +76,13 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 	return
 }
 
+// Расчет эквивалента в другой валюте
 func convertCurrency(amount float64, sourceCurrency string, finalCurrency string) float64 {
-	const USDToEUR float64 = 0.932
-	const USDToRUB float64 = 70.323
-	const EURToRUB float64 = USDToRUB / USDToEUR
+	exchangeRate := map[string]map[string]float64{"RUB": {"USD": 1.0 / 70.323, "EUR": 0.932 / 70.323},
+		"USD": {"RUB": 70.323, "EUR": 0.932},
+		"EUR": {"USD": 1.0 / 0.932, "RUB": 70.323 / 0.932}}
 
-	switch sourceCurrency {
-	case "RUB":
-		if finalCurrency == "USD" {
-			return amount / USDToRUB
-		} else if finalCurrency == "EUR" {
-			return amount / EURToRUB
-		}
-	case "USD":
-		if finalCurrency == "RUB" {
-			return amount * USDToRUB
-		} else if finalCurrency == "EUR" {
-			return amount * USDToEUR
-		}
-	case "EUR":
-		if finalCurrency == "USD" {
-			return amount / USDToEUR
-		} else if finalCurrency == "RUB" {
-			return amount * EURToRUB
-		}
-	default:
-		return amount
-	}
-
-	return amount
+	return amount * exchangeRate[sourceCurrency][finalCurrency]
 }
 
 func main() {
