@@ -9,8 +9,10 @@ import (
 )
 
 // Форматированный ввод пользователем информации для конверсии валют
-func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency string) {
+func inputConvertInfo(exchangeRate *map[string]float64) (float64, string, string, *map[string]float64) {
 	scanner := bufio.NewScanner(os.Stdin)
+	var amount float64
+	var sourceCurrency, finalCurrency string
 
 	for {
 		fmt.Print("Input amount: ")
@@ -18,8 +20,9 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 		if !scanner.Scan() {
 			if err := scanner.Err(); err != nil {
 				fmt.Printf("Invalid input amount: %v\nTry again\n", err)
-				continue
 			}
+			fmt.Println("Goodbye!")
+			os.Exit(1)
 		}
 
 		line := strings.TrimSpace(scanner.Text())
@@ -45,11 +48,13 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 				fmt.Printf("Invalid input source currency: %v\nTry again\n", err)
 				continue
 			}
+			fmt.Println("Goodbye!")
+			os.Exit(1)
 		}
 
 		sourceCurrency = strings.TrimSpace(scanner.Text())
 
-		if sourceCurrency != "RUB" && sourceCurrency != "EUR" && sourceCurrency != "USD" {
+		if _, ok := (*exchangeRate)[sourceCurrency]; !ok {
 			fmt.Printf("Invalid input: the source currency must be RUB, EUR or USD\nTry again\n")
 			continue
 		}
@@ -63,50 +68,27 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 				fmt.Printf("Invalid input final currency: %v\nTry again\n", err)
 				continue
 			}
+			fmt.Println("Goodbye!")
+			os.Exit(1)
 		}
 
 		finalCurrency = strings.TrimSpace(scanner.Text())
 
-		if finalCurrency != "RUB" && finalCurrency != "EUR" && finalCurrency != "USD" {
+		if _, ok := (*exchangeRate)[finalCurrency]; !ok {
 			fmt.Printf("Invalid input: the final currency must be RUB, EUR or USD\nTry again\n")
 			continue
 		}
 		break
 	}
-	return
+	return amount, sourceCurrency, finalCurrency, exchangeRate
 }
 
-func convertCurrency(amount float64, sourceCurrency string, finalCurrency string) float64 {
-	const USDToEUR float64 = 0.932
-	const USDToRUB float64 = 70.323
-	const EURToRUB float64 = USDToRUB / USDToEUR
-
-	switch sourceCurrency {
-	case "RUB":
-		if finalCurrency == "USD" {
-			return amount / USDToRUB
-		} else if finalCurrency == "EUR" {
-			return amount / EURToRUB
-		}
-	case "USD":
-		if finalCurrency == "RUB" {
-			return amount * USDToRUB
-		} else if finalCurrency == "EUR" {
-			return amount * USDToEUR
-		}
-	case "EUR":
-		if finalCurrency == "USD" {
-			return amount / USDToEUR
-		} else if finalCurrency == "RUB" {
-			return amount * EURToRUB
-		}
-	default:
-		return amount
-	}
-
-	return amount
+// Расчет эквивалента в другой валюте
+func convertCurrency(amount float64, sourceCurrency string, finalCurrency string, exchangeRate *map[string]float64) float64 {
+	return amount / (*exchangeRate)[sourceCurrency] * (*exchangeRate)[finalCurrency]
 }
 
 func main() {
-	fmt.Printf("Result: %f\n", convertCurrency(inputConvertInfo()))
+	var exchangeRate = map[string]float64{"USD": 1.0, "EUR": 0.932, "RUB": 70.323}
+	fmt.Printf("Result: %f\n", convertCurrency(inputConvertInfo(&exchangeRate)))
 }
