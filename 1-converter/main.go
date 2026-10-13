@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+var exchangeRate = map[string]float64{"USD": 1.0, "EUR": 0.932, "RUB": 70.323}
+
 // Форматированный ввод пользователем информации для конверсии валют
 func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency string) {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -18,8 +20,9 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 		if !scanner.Scan() {
 			if err := scanner.Err(); err != nil {
 				fmt.Printf("Invalid input amount: %v\nTry again\n", err)
-				continue
 			}
+			fmt.Println("Goodbye!")
+			os.Exit(1)
 		}
 
 		line := strings.TrimSpace(scanner.Text())
@@ -45,11 +48,13 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 				fmt.Printf("Invalid input source currency: %v\nTry again\n", err)
 				continue
 			}
+			fmt.Println("Goodbye!")
+			os.Exit(1)
 		}
 
 		sourceCurrency = strings.TrimSpace(scanner.Text())
 
-		if sourceCurrency != "RUB" && sourceCurrency != "EUR" && sourceCurrency != "USD" {
+		if _, ok := exchangeRate[sourceCurrency]; !ok {
 			fmt.Printf("Invalid input: the source currency must be RUB, EUR or USD\nTry again\n")
 			continue
 		}
@@ -63,11 +68,13 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 				fmt.Printf("Invalid input final currency: %v\nTry again\n", err)
 				continue
 			}
+			fmt.Println("Goodbye!")
+			os.Exit(1)
 		}
 
 		finalCurrency = strings.TrimSpace(scanner.Text())
 
-		if finalCurrency != "RUB" && finalCurrency != "EUR" && finalCurrency != "USD" {
+		if _, ok := exchangeRate[finalCurrency]; !ok {
 			fmt.Printf("Invalid input: the final currency must be RUB, EUR or USD\nTry again\n")
 			continue
 		}
@@ -78,11 +85,7 @@ func inputConvertInfo() (amount float64, sourceCurrency string, finalCurrency st
 
 // Расчет эквивалента в другой валюте
 func convertCurrency(amount float64, sourceCurrency string, finalCurrency string) float64 {
-	exchangeRate := map[string]map[string]float64{"RUB": {"USD": 1.0 / 70.323, "EUR": 0.932 / 70.323, "RUB": 1.0},
-		"USD": {"RUB": 70.323, "EUR": 0.932, "USD": 1.0},
-		"EUR": {"USD": 1.0 / 0.932, "RUB": 70.323 / 0.932, "EUR": 1.0}}
-
-	return amount * exchangeRate[sourceCurrency][finalCurrency]
+	return amount / exchangeRate[sourceCurrency] * exchangeRate[finalCurrency]
 }
 
 func main() {
