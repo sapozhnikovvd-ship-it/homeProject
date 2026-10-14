@@ -15,10 +15,12 @@ type Bin struct {
 	Name      string
 }
 
-type BinList []Bin
+func NewBin(id string, private bool, createdAt time.Time, name string) *Bin {
+	return &Bin{Id: id, Private: private, CreatedAt: createdAt, Name: name}
+}
 
-func NewBin(scanner *bufio.Scanner) (*Bin, error) {
-	fmt.Print("Please! Input your id (number): ")
+func NewBinConsole(scanner *bufio.Scanner) (*Bin, error) {
+	fmt.Print("Please! Input your id: ")
 	id, err := scannerHendler(scanner)
 	if err != nil {
 		return nil, fmt.Errorf("invalid id: %w", err)
@@ -67,6 +69,40 @@ func NewBin(scanner *bufio.Scanner) (*Bin, error) {
 	return &Bin{Id: id, Private: private, CreatedAt: time.Now(), Name: name}, nil
 }
 
+type BinList []Bin
+
+func NewBinList(bins ...Bin) *BinList {
+	newBinList := BinList(bins)
+	return &newBinList
+}
+
+func NewBinListConsole(scanner *bufio.Scanner) (BinList, error) {
+
+	var newBinSlice []Bin
+	errEOF := errors.New("end of input")
+
+	for {
+		newBin, err := NewBinConsole(scanner)
+		if err != nil {
+			return nil, err
+		}
+
+		newBinSlice = append(newBinSlice, (*newBin))
+		fmt.Printf("Next? Y or anything else: ")
+
+		if value, err := scannerHendler(scanner); value != "Y" && err == nil {
+			break
+		} else if err != nil {
+			if errors.Is(err, errEOF) {
+				return BinList(newBinSlice), err
+			}
+			return nil, err
+		}
+	}
+
+	return BinList(newBinSlice), nil
+}
+
 func scannerHendler(scanner *bufio.Scanner) (string, error) {
 	if !scanner.Scan() {
 		if err := scanner.Err(); err != nil {
@@ -76,32 +112,4 @@ func scannerHendler(scanner *bufio.Scanner) (string, error) {
 	}
 
 	return strings.TrimSpace(scanner.Text()), nil
-}
-
-func NewBinList(scanner *bufio.Scanner) (BinList, error) {
-
-	var newBinSlice []Bin
-
-	for {
-		newBin, err := NewBin(scanner)
-		if err != nil {
-			return nil, err
-		}
-
-		newBinSlice = append(newBinSlice, (*newBin))
-		fmt.Printf("Next? Y or anything else: ")
-
-		if !scanner.Scan() {
-			if err = scanner.Err(); err != nil {
-				return nil, err
-			}
-			return nil, errors.New("end of input")
-		}
-
-		if strings.TrimSpace(scanner.Text()) != "Y" {
-			break
-		}
-	}
-
-	return BinList(newBinSlice), nil
 }
