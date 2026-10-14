@@ -16,7 +16,9 @@ type Bin struct {
 	Name      string
 }
 
-func CreatBinAndFilling() *Bin {
+type BinList = []Bin
+
+func NewBin() Bin {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("Please! Input your id (number): ")
@@ -70,32 +72,34 @@ func CreatBinAndFilling() *Bin {
 		os.Exit(1)
 	}
 
-	return &Bin{Id: id, Private: private, CreatedAt: time.Now(), Name: name}
+	return Bin{Id: id, Private: private, CreatedAt: time.Now(), Name: name}
 }
 
 func scannerHendler(scanner *bufio.Scanner) (string, error) {
-	counter := 0
-	for ; counter < 100; counter++ {
-		if !scanner.Scan() {
-			if err := scanner.Err(); err != nil {
-				fmt.Println("Invalid input! Try again: ")
-				continue
-			}
-			return "", errors.New("end of input")
+	if !scanner.Scan() {
+		if err := scanner.Err(); err != nil {
+			return "", err
 		}
-		break
+		return "", errors.New("end of input")
 	}
-	if counter == 100 {
-		return "", errors.New("so many try of input")
-	}
+
 	return strings.TrimSpace(scanner.Text()), nil
 }
 
-func NewBinList(lenOfBin, capOfBin int) *[]Bin {
-	newBinList := make([]Bin, lenOfBin, capOfBin)
-	return &newBinList
-}
+func NewBinList(lenOfBinList, capOfBinList int) (BinList, error) {
+	if capOfBinList < 0 {
+		return make([]Bin, 0), errors.New("negative capacity")
+	} else if lenOfBinList < 0 {
+		return make([]Bin, 0), errors.New("negative lenth")
+	} else if lenOfBinList < capOfBinList {
+		return make([]Bin, 0), errors.New("length is less than capacity")
+	}
 
-func NewBin() *Bin {
-	return &Bin{}
+	newBinList := make([]Bin, lenOfBinList, capOfBinList)
+
+	for i := 0; i < lenOfBinList; i++ {
+		newBinList[i] = NewBin()
+	}
+
+	return BinList(newBinList), nil
 }
