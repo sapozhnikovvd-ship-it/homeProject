@@ -1,3 +1,3 @@
-module 4-CLI
+module cli
 
 go 1.23.4
