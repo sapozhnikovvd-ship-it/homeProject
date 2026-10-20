@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func readSomethingFile(nameOfFile string) ([]byte, error) {
+func ReadSomethingFile(nameOfFile string) ([]byte, error) {
 	if ok, err := checkFile(nameOfFile); ok {
 		somthingBytes, err := os.ReadFile(nameOfFile)
 		if err != nil {
@@ -20,13 +20,9 @@ func readSomethingFile(nameOfFile string) ([]byte, error) {
 
 }
 
-func checkJSONExtension(nameOfFile string) (bool, error) {
-	if ok, err := checkFile(nameOfFile); ok {
-		ext := filepath.Ext(nameOfFile)
-		return strings.EqualFold(ext, ".json"), nil
-	} else {
-		return false, err
-	}
+func СheckJSONExtension(nameOfFile string) bool {
+	ext := filepath.Ext(nameOfFile)
+	return strings.EqualFold(ext, ".json")
 }
 
 func checkFile(nameOfFile string) (bool, error) {

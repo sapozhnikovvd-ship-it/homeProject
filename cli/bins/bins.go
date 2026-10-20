@@ -85,9 +85,6 @@ func NewBinFromJson(jsonName string) (*Bin, error) {
 		return nil, err
 	}
 
-	newBinFromJson.CreatedAt = time.Now()
-	newBinFromJson.ModifiedAt = time.Now()
-
 	return newBinFromJson, nil
 }
 
@@ -141,9 +138,6 @@ func NewBinListFromJson(jsonName string) (*BinList, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	binListFromJson.CreatedAt = time.Now()
-	binListFromJson.ModifiedAt = time.Now()
 
 	return binListFromJson, err
 }
